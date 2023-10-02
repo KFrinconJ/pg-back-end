@@ -14,3 +14,7 @@ class ProgramaAcademicoCreate(ProgramaAcademicoBase):
 
 class ProgramaAcademicoRead(ProgramaAcademicoBase):
     id: int
+
+
+class ProgramaAcademicoUpdate(ProgramaAcademicoBase):
+    pass

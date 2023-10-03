@@ -12,7 +12,7 @@ class FuncionSustantivaCreate(FuncionSustantivaBase):
 
 class FuncionSustantivaRead(FuncionSustantivaBase):
     id: int
-    tipo: int
+    tipo: int | str
 
 
 class FuncionSustantivaUpdate(FuncionSustantivaBase):

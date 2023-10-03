@@ -12,5 +12,6 @@ class FuncionSustantiva(Base):
     activo = Column(Boolean, default=False, nullable=False)
 
     # Relaciones entre tablas
-    tipo = Column(Integer, ForeignKey("tipo_funcion_sustantiva.id"), nullable=False)
+    #Nombre del campo segun la tabla segun el sgdb
+    tipo = Column(Integer, ForeignKey("tipo_funcion_sustantiva.id"), nullable=False) 
     tipo_id = relationship("TipoFuncionSustantiva", backref="funcion_sustantiva")

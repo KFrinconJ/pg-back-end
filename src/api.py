@@ -5,6 +5,7 @@ from typing import Optional, List
 from fastapi import APIRouter
 
 from src.programa_academico.router import router as programa_academico_router
+from src.funcion_sustantiva.router import router as funcion_sustantiva_router
 
 
 class ErrorMessage(BaseModel):
@@ -36,4 +37,11 @@ api_router.include_router(
     programa_academico_router,
     prefix="/programa-academico",
     tags=["Programas Academicos"],
+)
+
+# Ruta de Funcion Sustantiva
+api_router.include_router(
+    funcion_sustantiva_router,
+    prefix="/funcion-sustantiva",
+    tags=["Funciones Sustantivas"],
 )

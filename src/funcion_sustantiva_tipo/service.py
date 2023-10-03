@@ -2,13 +2,11 @@ from typing import Optional, List
 from .models import TipoFuncionSustantiva
 
 
-def get_by_id(
-    *, db_session, tipo_funcion_sustantiva_id: int
-) -> Optional[TipoFuncionSustantiva]:
+def get_by_id(*, db_session, id: int) -> Optional[TipoFuncionSustantiva]:
     """Obtiene el tipo de funcion sustantiva por id."""
     return (
         db_session.query(TipoFuncionSustantiva)
-        .filter(TipoFuncionSustantiva.id == tipo_funcion_sustantiva_id)
+        .filter(TipoFuncionSustantiva.id == id)
         .first()
     )
 

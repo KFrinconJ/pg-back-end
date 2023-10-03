@@ -20,6 +20,9 @@ from .service import (
 
 router = APIRouter()
 
+error_object_plural = "Programas Academicos"
+error_object_singular = "Un Programa Academico"
+
 
 @router.get("")
 def read_programas_academicos(db_session: DbSession, skip: int = 0, limit: int = 100):
@@ -27,7 +30,7 @@ def read_programas_academicos(db_session: DbSession, skip: int = 0, limit: int =
     if not programas_academicos:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=[{"msg": "No hay programas academicos"}],
+            detail=[{"msg": f"No hay {error_object_plural}"}],
         )
     return programas_academicos
 
@@ -40,7 +43,11 @@ def get_programa_academico_by_id(db_session: DbSession, programa_academico_id: i
     if not programa_academico:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=[{"msg": "No existe un programa academico con este id"}],
+            detail=[
+                {
+                    "msg": f"No existe {error_object_singular} con el id {programa_academico_id}"
+                }
+            ],
         )
     return ProgramaAcademicoRead(**programa_academico.__dict__)
 
@@ -52,7 +59,9 @@ def get_programa_academico_by_codigo_snies(db_session: DbSession, snies: int):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=[
-                {"msg": f"No existe un programa academico el codigo snies {snies}"}
+                {
+                    "msg": f"No existe {error_object_singular} con el codigo snies {snies}"
+                }
             ],
         )
     return ProgramaAcademicoRead(**programa_academico.__dict__)
@@ -64,7 +73,9 @@ def get_programa_academico_by_name(db_session: DbSession, nombre: str):
     if not programa_academico:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=[{"msg": f"No existe un programa academico con el nombre {nombre}"}],
+            detail=[
+                {"msg": f"No existe {error_object_singular} con el nombre {nombre}"}
+            ],
         )
     return ProgramaAcademicoRead(**programa_academico.__dict__)
 
@@ -85,7 +96,7 @@ def create_programa_academico(
             status_code=status.HTTP_409_CONFLICT,
             detail=[
                 {
-                    "msg": f"Ya existe un programa academico con el nombre {programa_academico_in.nombre}"
+                    "msg": f"Ya existe {error_object_singular} con el nombre {programa_academico_in.nombre}"
                 }
             ],
         )
@@ -94,7 +105,7 @@ def create_programa_academico(
             status_code=status.HTTP_409_CONFLICT,
             detail=[
                 {
-                    "msg": f"Ya existe un programa academico con el codigo snies {programa_academico_in.codigo_snies}"
+                    "msg": f"Ya existe {error_object_singular} con el codigo snies {programa_academico_in.codigo_snies}"
                 }
             ],
         )
@@ -113,7 +124,7 @@ def update_programa_academico_by_codigo_snies(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=[
-                {"msg": f"No existe un programa academico el codigo snies {snies}"}
+                {"msg": f"No existe {error_object_singular} el codigo snies {snies}"}
             ],
         )
 
@@ -133,11 +144,13 @@ def delete_programa_academico_by_codigo_snies(db_session: DbSession, snies: int)
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=[
-                {"msg": f"No existe un programa academico el codigo snies {snies}"}
+                {"msg": f"No existe {error_object_singular} el codigo snies {snies}"}
             ],
         )
     delete_by_codigo_snies(db_session=db_session, codigo_snies=snies)
     return HTTPException(
         status_code=status.HTTP_204_NO_CONTENT,
-        detail=[{"msg": f"Se elimino el programa academico con codigo snies {snies}"}],
+        detail=[
+            {"msg": f"Se elimino {error_object_singular} con codigo snies {snies}"}
+        ],
     )

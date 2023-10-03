@@ -4,6 +4,7 @@ from .database.core import engine
 from starlette.requests import Request
 
 from sqlalchemy.orm import sessionmaker, scoped_session
+from .api import api_router
 
 # ASGI para el framework
 app = FastAPI()
@@ -39,3 +40,7 @@ def test_db_connection():
         return {"message": "Conexión a la base de datos exitosa"}
     except Exception as e:
         return {"message": "Error al conectar a la base de datos", "error": str(e)}
+
+
+# Añadimos todas la rutas
+app.include_router(api_router)

@@ -10,9 +10,7 @@ from .shcemas import FuncionSustantivaCreate, FuncionSustantivaUpdate
 def get_by_id(*, db_session, id: int) -> Optional[FuncionSustantiva]:
     """Obtiene la funcion sustantiva por id."""
     return (
-        db_session.query(FuncionSustantiva)
-        .filter(FuncionSustantiva.id == id)
-        .first()
+        db_session.query(FuncionSustantiva).filter(FuncionSustantiva.id == id).first()
     )
 
 
@@ -37,17 +35,18 @@ def create(
 ) -> FuncionSustantiva:
     """Crea una nueva funcion sustantiva"""
 
-    tipo = tipo_funcion_sustantiva_service.get_by_name(
+    tipo = tipo_funcion_sustantiva_service.get_by_id(
         db_session=db_session,
-        nombre=funcion_sustantiva_in.tipo,
+        id=funcion_sustantiva_in.tipo,
     )
+
     funcion_sustantiva = FuncionSustantiva(
-        **funcion_sustantiva_in.dict(exclude={"tipo"}), tipo=tipo
+        **funcion_sustantiva_in.dict(exclude={"tipo"}), tipo=tipo.id
     )
-    funcion_sustantiva.tipo = tipo
 
     db_session.add(funcion_sustantiva)
     db_session.commit()
+    db_session.refresh(funcion_sustantiva)
     return funcion_sustantiva
 
 
@@ -65,14 +64,15 @@ def update(
         if field in update_data:
             setattr(funcion_sustantiva, field, update_data[field])
 
-    if funcion_sustantiva_in.tipo is not None:
-        tipo = tipo_funcion_sustantiva_service.get_by_name(
-            db_session=db_session,
-            nombre=funcion_sustantiva_in.tipo,
-        )
-        funcion_sustantiva.tipo = tipo
+    tipo = tipo_funcion_sustantiva_service.get_by_id(
+        db_session=db_session,
+        id=funcion_sustantiva_in.tipo,
+    )
+    funcion_sustantiva.tipo = tipo.id
 
     db_session.commit()
+    db_session.refresh(funcion_sustantiva)
+
     return funcion_sustantiva
 
 

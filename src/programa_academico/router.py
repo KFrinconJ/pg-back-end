@@ -120,11 +120,37 @@ def update_programa_academico_by_codigo_snies(
     db_session: DbSession, snies: int, programa_academico_in: ProgramaAcademicoUpdate
 ):
     programa_academico_snies = get_by_codigo_snies(db_session=db_session, snies=snies)
+
+    programa_academico_name = get_by_name(
+        db_session=db_session, nombre=programa_academico_in.nombre
+    )
+
+    programa_academico_snies = get_by_codigo_snies(
+        db_session=db_session, snies=programa_academico_in.codigo_snies
+    )
     if not programa_academico_snies:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=[
                 {"msg": f"No existe {error_object_singular} el codigo snies {snies}"}
+            ],
+        )
+    if programa_academico_name:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=[
+                {
+                    "msg": f"Ya existe {error_object_singular} con el nombre {programa_academico_in.nombre}"
+                }
+            ],
+        )
+    if programa_academico_snies:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=[
+                {
+                    "msg": f"Ya existe {error_object_singular} con el codigo snies {programa_academico_in.codigo_snies}"
+                }
             ],
         )
 

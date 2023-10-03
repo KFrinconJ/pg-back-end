@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException, status
+from typing import Optional
 from src.database.core import DbSession
 from .shcemas import (
     FuncionSustantivaCreate,
@@ -12,9 +13,8 @@ error_object_singular = "Una Funcion Sustantiva"
 
 
 from .service import create, get_all, get_by_id, get_by_name, update, delete
+from src.funcion_sustantiva_tipo.service import get_by_id as get_by_id_tipo
 
-
-# Faltan crear validaciones
 
 router = APIRouter()
 
@@ -54,13 +54,27 @@ def get_funcion_sustantiva_by_name(db_session: DbSession, nombre: str):
     return FuncionSustantivaRead(**funcion_sustantiva.__dict__)
 
 
-@router.post("", response_model=FuncionSustantivaRead)
+@router.post("", response_model=Optional[FuncionSustantivaRead])
 def create_funcion_sustantiva(
     funcion_sustantiva_in: FuncionSustantivaCreate, db_session: DbSession
 ):
     funcion_sustantiva_nombre = get_by_name(
         db_session=db_session, nombre=funcion_sustantiva_in.nombre
     )
+
+    funcion_sustantiva_tipo = get_by_id_tipo(
+        db_session=db_session, id=funcion_sustantiva_in.tipo
+    )
+
+    if not funcion_sustantiva_tipo:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=[
+                {
+                    "msg": f"No existe un tipo de funcion sustantiva con el id {funcion_sustantiva_in.tipo}"
+                }
+            ],
+        )
 
     if funcion_sustantiva_nombre:
         raise HTTPException(
@@ -75,6 +89,7 @@ def create_funcion_sustantiva(
     funcion_sustantiva = create(
         db_session=db_session, funcion_sustantiva_in=funcion_sustantiva_in
     )
+
     return FuncionSustantivaRead(**funcion_sustantiva.__dict__)
 
 
@@ -88,14 +103,44 @@ def update_funcion_sustantiva(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=[{"msg": f"No existe {error_object_singular} el id {id}"}],
         )
+    
 
-    funcion_sustanitva_update = update(
+    funcion_sustantiva_nombre = get_by_name(
+        db_session=db_session, nombre=funcion_sustantiva_in.nombre
+    )
+
+    funcion_sustantiva_tipo = get_by_id_tipo(
+        db_session=db_session, id=funcion_sustantiva_in.tipo
+    )
+
+    if not funcion_sustantiva_tipo:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=[
+                {
+                    "msg": f"No existe un tipo de funcion sustantiva con el id {funcion_sustantiva_in.tipo}"
+                }
+            ],
+        )
+
+    if funcion_sustantiva_nombre:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=[
+                {
+                    "msg": f"Ya existe {error_object_singular} con el nombre {funcion_sustantiva_in.nombre}"
+                }
+            ],
+        )
+
+
+    funcion_sustantiva_update = update(
         db_session=db_session,
         funcion_sustantiva=funcion_sustantiva_exist,
         funcion_sustantiva_in=funcion_sustantiva_in,
     )
 
-    return FuncionSustantivaRead(**funcion_sustanitva_update.__dict__)
+    return FuncionSustantivaRead(**funcion_sustantiva_update.__dict__)
 
 
 @router.delete("/{id}")

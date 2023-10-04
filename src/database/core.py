@@ -7,11 +7,9 @@ from sqlalchemy.orm import sessionmaker, Session
 from starlette.requests import Request
 
 
-# !PRODUCCION = Inicia la base de datos
-# engine = create_engine(config.SQLALCHEMY_DATABASE_URI)
+engine = create_engine(config.SQLALCHEMY_DATABASE_URI)
 
-# !DESARROLLO = Inicia la base de datos para desarrollo
-engine = create_engine(config.SQLALCHEMY_DEVELOPER_DATABASE_URI)
+
 # Para las sesiones de cada peticion
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 

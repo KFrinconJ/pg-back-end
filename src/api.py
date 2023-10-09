@@ -6,6 +6,7 @@ from fastapi import APIRouter
 
 from src.programa_academico.router import router as programa_academico_router
 from src.funcion_sustantiva.router import router as funcion_sustantiva_router
+from src.usuario.router import router as usuario_router
 
 
 class ErrorMessage(BaseModel):
@@ -44,4 +45,11 @@ api_router.include_router(
     funcion_sustantiva_router,
     prefix="/funcion-sustantiva",
     tags=["Funciones Sustantivas"],
+)
+
+
+api_router.include_router(
+    usuario_router,
+    prefix="/usuario",
+    tags=["Usuarios"],
 )

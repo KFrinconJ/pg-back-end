@@ -6,6 +6,9 @@ from .schemas import (
     ProgramaAcademicoUpdate,
 )
 
+from src.usuario.service import get_by_cedula
+from src.usuario.models import Usuario
+
 
 def get_by_id(*, db_session, programa_academico_id: int) -> Optional[ProgramaAcademico]:
     """Obtiene el programa academico por id."""
@@ -45,7 +48,18 @@ def create(
     *, db_session, programa_academico_in: ProgramaAcademicoCreate
 ) -> ProgramaAcademico:
     """Crea un nuevo programa academico"""
-    programa_academico = ProgramaAcademico(**programa_academico_in.dict())
+
+    director = get_by_cedula(
+        db_session=db_session, cedula=programa_academico_in.director
+    )
+
+    nombre = programa_academico_in.nombre.upper()
+
+    programa_academico = ProgramaAcademico(
+        **programa_academico_in.dict(exclude={"director", "nombre"}),
+        director=director.cedula,
+        nombre=nombre
+    )
     db_session.add(programa_academico)
     db_session.commit()
     db_session.refresh(programa_academico)
@@ -58,8 +72,15 @@ def update_by_codigo_snies(
     programa_academico: ProgramaAcademico,
     programa_academico_in: ProgramaAcademicoUpdate
 ) -> ProgramaAcademico:
+    director = get_by_cedula(
+        db_session=db_session, cedula=programa_academico_in.director
+    )
     programa_academico_data = programa_academico.__dict__
-    update_data = programa_academico_in.dict(exclude_unset=True)
+    update_data = {
+        "codigo_snies": programa_academico_in.codigo_snies,
+        "nombre": programa_academico_in.nombre.upper(),
+        "director": director.cedula,
+    }
 
     for field in programa_academico_data:
         if field in update_data:

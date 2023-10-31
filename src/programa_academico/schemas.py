@@ -1,11 +1,10 @@
 from pydantic import BaseModel
-from typing import Optional
 
 
 class ProgramaAcademicoBase(BaseModel):
     codigo_snies: int
     nombre: str
-    descripcion: str
+    director: int
 
 
 class ProgramaAcademicoCreate(ProgramaAcademicoBase):

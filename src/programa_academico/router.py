@@ -15,6 +15,8 @@ from .service import (
     delete_by_codigo_snies,
 )
 
+from src.usuario.service import get_by_cedula
+
 
 # Faltan crear validaciones
 
@@ -91,6 +93,19 @@ def create_programa_academico(
         db_session=db_session, snies=programa_academico_in.codigo_snies
     )
 
+    director = get_by_cedula(
+        db_session=db_session, cedula=programa_academico_in.director
+    )
+    if not director:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=[
+                {
+                    "msg": f"No se encuentra un usuario[director] con la cedula {programa_academico_in.director}"
+                }
+            ],
+        )
+
     if programa_academico_name:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
@@ -125,9 +140,20 @@ def update_programa_academico_by_codigo_snies(
         db_session=db_session, nombre=programa_academico_in.nombre
     )
 
-    programa_academico_snies = get_by_codigo_snies(
-        db_session=db_session, snies=programa_academico_in.codigo_snies
+    director = get_by_cedula(
+        db_session=db_session, cedula=programa_academico_in.director
     )
+
+    if not director:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=[
+                {
+                    "msg": f"No se encuentra un usuario[director] con la cedula {programa_academico_in.director}"
+                }
+            ],
+        )
+
     if not programa_academico_snies:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -141,15 +167,6 @@ def update_programa_academico_by_codigo_snies(
             detail=[
                 {
                     "msg": f"Ya existe {error_object_singular} con el nombre {programa_academico_in.nombre}"
-                }
-            ],
-        )
-    if programa_academico_snies:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail=[
-                {
-                    "msg": f"Ya existe {error_object_singular} con el codigo snies {programa_academico_in.codigo_snies}"
                 }
             ],
         )

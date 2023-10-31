@@ -1,6 +1,6 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy.orm import relationship
 from src.database.core import Base
-from src.models import TimeStampMixin
 
 
 class ProgramaAcademico(Base):
@@ -8,5 +8,9 @@ class ProgramaAcademico(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     codigo_snies = Column(Integer, unique=True)
-    nombre = Column(String)
-    descripcion = Column(String)
+    nombre = Column(String, unique=True)
+
+    # Relacion entre tablas
+    # Nombre del campo
+    director = Column(Integer, ForeignKey("usuario.cedula"), nullable=False)
+    director_ref = relationship("Usuario", backref="programa_academico")

@@ -4,7 +4,7 @@ from typing import Optional
 
 
 class UsuarioBase(BaseModel):
-    cedula: conint(strict=True, gt=9999999, lt=10000000000)
+    cedula: int
     correo: EmailStr
     nombre: str
     apellido: str
@@ -19,15 +19,8 @@ class UsuarioCreate(UsuarioBase):
 
 
 class UsuarioRead(UsuarioBase):
-    id: int
     perfil: Optional[str]
 
 
 class UsuarioUpdate(UsuarioBase):
     perfil: Optional[str]
-
-
-print(UsuarioBase.schema())
-
-
-# usuario = UsuarioBase.parse_raw('{"cedula":"Hola"}')

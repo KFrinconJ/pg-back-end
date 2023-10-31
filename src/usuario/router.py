@@ -8,7 +8,6 @@ from .schemas import (
 from .service import (
     create,
     get_all,
-    get_by_id,
     get_by_cedula,
     get_by_email,
     update,
@@ -34,20 +33,7 @@ def read_usuarios(db_session: DbSession, skip: int = 0, limit: int = 100):
     return usuarios
 
 
-@router.get("/{usuario_id}", response_model=UsuarioRead)
-def get_usuario_by_id(db_session: DbSession, usuario_id: int):
-    usuario = get_by_id(db_session=db_session, usuario_id=usuario_id)
-    if not usuario:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=[
-                {"msg": f"No existe {error_object_singular} con el id {usuario_id}"}
-            ],
-        )
-    return UsuarioRead(**usuario.__dict__)
-
-
-@router.get("/cedula/{cedula}", response_model=UsuarioRead)
+@router.get("/{cedula}", response_model=UsuarioRead)
 def get_usuario_by_cedula(db_session: DbSession, cedula: int):
     usuario = get_by_cedula(db_session=db_session, cedula=cedula)
     if not usuario:
@@ -100,7 +86,7 @@ def create_usuario(usuario_in: UsuarioCreate, db_session: DbSession):
     return UsuarioRead(**programa_academico.__dict__)
 
 
-@router.put("/cedula/{cedula}")
+@router.put("/{cedula}")
 def update_usaurio_by_cedula(
     db_session: DbSession, cedula: int, usuario_in: UsuarioUpdate
 ):
@@ -163,7 +149,7 @@ def delete_usuario_by_correo(db_session: DbSession, correo: str):
     )
 
 
-@router.delete("/cedula/{cedula}")
+@router.delete("/{cedula}")
 def delete_usuario_by_correo(db_session: DbSession, cedula: int):
     usuario_correo = get_by_cedula(db_session=db_session, cedula=cedula)
     if not usuario_correo:
@@ -173,7 +159,7 @@ def delete_usuario_by_correo(db_session: DbSession, cedula: int):
                 {"msg": f"No existe {error_object_singular} con la cedula {cedula}"}
             ],
         )
-    delete_by_correo(db_session=db_session, cedula=cedula)
+    delete_by_cedula(db_session=db_session, cedula=cedula)
     return HTTPException(
         status_code=status.HTTP_204_NO_CONTENT,
         detail=[{"msg": f"Se elimino el usuario con la {cedula}"}],

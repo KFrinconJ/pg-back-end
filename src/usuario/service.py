@@ -1,15 +1,12 @@
 from typing import Optional, List
+from fastapi import HTTPException, status
+
 
 from .models import Usuario
 from .schemas import (
     UsuarioCreate,
     UsuarioUpdate,
 )
-
-
-def get_by_id(*, db_session, usuario_id: int) -> Optional[Usuario]:
-    """Obtiene el usuario por id."""
-    return db_session.query(Usuario).filter(Usuario.id == usuario_id).first()
 
 
 def get_by_cedula(*, db_session, cedula: int) -> Optional[Usuario]:
@@ -40,7 +37,7 @@ def create(*, db_session, usuario_in: UsuarioCreate) -> Usuario:
         apellido=apellido_usuario,
         correo=correo_usuario,
         perfil=perfil_usuario,
-        rol=rol_usuario
+        rol=rol_usuario,
     )
     db_session.add(usuario)
     db_session.commit()
@@ -51,19 +48,13 @@ def create(*, db_session, usuario_in: UsuarioCreate) -> Usuario:
 def update(*, db_session, usuario: Usuario, usuario_in: UsuarioUpdate) -> Usuario:
     usuario_data = usuario.__dict__
 
-    nombre_usuario = usuario_in.nombre.upper()
-    apellido_usuario = usuario_in.apellido.upper()
-    correo_usuario = usuario_in.correo.lower()
-    perfil_usuario = usuario_in.perfil.upper()
-    rol_usuario = usuario_in.rol.upper()
-    update_data = Usuario(
-        usuario_in.dict(exclude={"nombre", "apellido", "correo", "perfil", "rol"}),
-        nombre=nombre_usuario,
-        apellido=apellido_usuario,
-        correo=correo_usuario,
-        perfil=perfil_usuario,
-        rol=rol_usuario,
-    ).__dict__
+    update_data = {
+        "nombre": usuario_in.nombre.upper(),
+        "apellido": usuario_in.apellido.upper(),
+        "correo": usuario_in.correo.lower(),
+        "perfil": usuario_in.perfil.upper(),
+        "rol": usuario_in.rol.upper(),
+    }
 
     for field in usuario_data:
         if field in update_data:

@@ -3,17 +3,20 @@ from pydantic import BaseModel
 
 class FuncionSustantivaBase(BaseModel):
     nombre: str
-    activo: bool
+    cantidad_horas: int
+    descripcion: str
+    actividad: int
 
 
 class FuncionSustantivaCreate(FuncionSustantivaBase):
-    tipo: int
+    dependencia: int
 
 
 class FuncionSustantivaRead(FuncionSustantivaBase):
     id: int
-    tipo: int | str
+    dependencia: int | str
+    actividad: int | str
 
 
 class FuncionSustantivaUpdate(FuncionSustantivaBase):
-    tipo: int
+    dependencia: int

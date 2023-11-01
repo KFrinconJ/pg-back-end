@@ -15,14 +15,14 @@ error_object_singular = "Una Funcion Sustantiva"
 from .service import (
     create,
     get_all,
-    get_by_id_raw_data,
     get_by_name,
     update,
     delete,
     get_by_id,
-    get_all_raw_data,
+    get_by_id_numeric,
 )
-from src.funcion_sustantiva_tipo.service import get_by_id as get_by_id_tipo
+from src.dependencia.service import get_by_id as get_by_id_dependencia
+from src.actividad.service import get_by_id as get_by_id_actividad
 
 
 router = APIRouter()
@@ -31,19 +31,6 @@ router = APIRouter()
 @router.get("")
 def get_funciones_sustantivas(db_session: DbSession, skip: int = 0, limit: int = 100):
     funciones_sustantivas = get_all(db_session=db_session, skip=skip, limit=limit)
-    if not funciones_sustantivas:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=[{"msg": f"No hay {error_object_plural}"}],
-        )
-    return funciones_sustantivas
-
-
-@router.get("/raw")
-def get_funciones_sustantivas(db_session: DbSession, skip: int = 0, limit: int = 100):
-    funciones_sustantivas = get_all_raw_data(
-        db_session=db_session, skip=skip, limit=limit
-    )
     if not funciones_sustantivas:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -64,17 +51,6 @@ def get_funcion_sustantiva_by_id(db_session: DbSession, id: int):
     return FuncionSustantivaRead(**funcion_sustantiva)
 
 
-@router.get("/raw/{id}", response_model=FuncionSustantivaRead)
-def get_funcion_sustantiva_by_id(db_session: DbSession, id: int):
-    funcion_sustantiva = get_by_id_raw_data(db_session=db_session, id=id)
-    if not funcion_sustantiva:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=[{"msg": f"No existe {error_object_singular} con el id {id}"}],
-        )
-    return FuncionSustantivaRead(**funcion_sustantiva.__dict__)
-
-
 @router.get("/nombre/{nombre}", response_model=FuncionSustantivaRead)
 def get_funcion_sustantiva_by_name(db_session: DbSession, nombre: str):
     funcion_sustantiva = get_by_name(db_session=db_session, nombre=nombre)
@@ -92,33 +68,47 @@ def get_funcion_sustantiva_by_name(db_session: DbSession, nombre: str):
 def create_funcion_sustantiva(
     funcion_sustantiva_in: FuncionSustantivaCreate, db_session: DbSession
 ):
-    funcion_sustantiva_nombre = get_by_name(
-        db_session=db_session, nombre=funcion_sustantiva_in.nombre
+    # funcion_sustantiva_nombre = get_by_name(
+    #     db_session=db_session, nombre=funcion_sustantiva_in.nombre
+    # )
+
+    funcion_sustantiva_dependencia = get_by_id_dependencia(
+        db_session=db_session, id=funcion_sustantiva_in.dependencia
     )
 
-    funcion_sustantiva_tipo = get_by_id_tipo(
-        db_session=db_session, id=funcion_sustantiva_in.tipo
+    funcion_sustantiva_actividad = get_by_id_actividad(
+        db_session=db_session, id=funcion_sustantiva_in.actividad
     )
 
-    if not funcion_sustantiva_tipo:
+    if not funcion_sustantiva_actividad:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=[
                 {
-                    "msg": f"No existe un tipo de funcion sustantiva con el id {funcion_sustantiva_in.tipo}"
+                    "msg": f"No existe una actividad con el id {funcion_sustantiva_in.actividad}"
                 }
             ],
         )
 
-    if funcion_sustantiva_nombre:
+    if not funcion_sustantiva_dependencia:
         raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
+            status_code=status.HTTP_404_NOT_FOUND,
             detail=[
                 {
-                    "msg": f"Ya existe {error_object_singular} con el nombre {funcion_sustantiva_in.nombre}"
+                    "msg": f"No existe una dependencia con el id {funcion_sustantiva_in.dependencia}"
                 }
             ],
         )
+
+    # if funcion_sustantiva_nombre:
+    #     raise HTTPException(
+    #         status_code=status.HTTP_409_CONFLICT,
+    #         detail=[
+    #             {
+    #                 "msg": f"Ya existe {error_object_singular} con el nombre {funcion_sustantiva_in.nombre}"
+    #             }
+    #         ],
+    #     )
 
     funcion_sustantiva = create(
         db_session=db_session, funcion_sustantiva_in=funcion_sustantiva_in
@@ -131,44 +121,58 @@ def create_funcion_sustantiva(
 def update_funcion_sustantiva(
     db_session: DbSession, id: int, funcion_sustantiva_in: FuncionSustantivaUpdate
 ):
-    funcion_sustantiva_exist = get_by_id(db_session=db_session, id=id)
-    if not funcion_sustantiva_exist:
+    funcion_sustantiva = get_by_id_numeric(db_session=db_session, id=id)
+    if not funcion_sustantiva:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=[{"msg": f"No existe {error_object_singular} el id {id}"}],
         )
 
-    funcion_sustantiva_nombre = get_by_name(
-        db_session=db_session, nombre=funcion_sustantiva_in.nombre
+    funcion_sustantiva_actividad = get_by_id_actividad(
+        db_session=db_session, id=funcion_sustantiva_in.actividad
     )
 
-    funcion_sustantiva_tipo = get_by_id_tipo(
-        db_session=db_session, id=funcion_sustantiva_in.tipo
-    )
-
-    if not funcion_sustantiva_tipo:
+    if not funcion_sustantiva_actividad:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=[
                 {
-                    "msg": f"No existe un tipo de funcion sustantiva con el id {funcion_sustantiva_in.tipo}"
+                    "msg": f"No existe una actividad con el id {funcion_sustantiva_in.actividad}"
                 }
             ],
         )
 
-    if funcion_sustantiva_nombre:
+    # funcion_sustantiva_nombre = get_by_name(
+    #     db_session=db_session, nombre=funcion_sustantiva_in.nombre
+    # )
+
+    funcion_sustantiva_dependencia = get_by_id_dependencia(
+        db_session=db_session, id=funcion_sustantiva_in.dependencia
+    )
+
+    if not funcion_sustantiva_dependencia:
         raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
+            status_code=status.HTTP_404_NOT_FOUND,
             detail=[
                 {
-                    "msg": f"Ya existe {error_object_singular} con el nombre {funcion_sustantiva_in.nombre}"
+                    "msg": f"No existe una dependencia con el id {funcion_sustantiva_in.dependencia}"
                 }
             ],
         )
+
+    # if funcion_sustantiva_nombre:
+    #     raise HTTPException(
+    #         status_code=status.HTTP_409_CONFLICT,
+    #         detail=[
+    #             {
+    #                 "msg": f"Ya existe {error_object_singular} con el nombre {funcion_sustantiva_in.nombre}"
+    #             }
+    #         ],
+    #     )
 
     funcion_sustantiva_update = update(
         db_session=db_session,
-        funcion_sustantiva=funcion_sustantiva_exist,
+        funcion_sustantiva=funcion_sustantiva,
         funcion_sustantiva_in=funcion_sustantiva_in,
     )
 

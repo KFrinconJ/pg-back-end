@@ -1,8 +1,10 @@
 from typing import Optional, List
 
 
-from src.funcion_sustantiva_tipo import service as tipo_funcion_sustantiva_service
-from src.funcion_sustantiva_tipo.models import TipoFuncionSustantiva
+from src.dependencia import service as dependencia_service
+from src.dependencia.models import Dependencia
+from src.actividad import service as actividad_service
+from src.actividad.models import Actividad
 
 
 from .models import FuncionSustantiva
@@ -10,14 +12,11 @@ from .models import FuncionSustantiva
 from .shcemas import FuncionSustantivaCreate, FuncionSustantivaUpdate
 
 
-def get_by_id_raw_data(*, db_session, id: int) -> Optional[FuncionSustantiva]:
+def get_by_id_numeric(*, db_session, id: int) -> Optional[FuncionSustantiva]:
     """Obtiene la funcion sustantiva por id."""
     return (
         db_session.query(FuncionSustantiva).filter(FuncionSustantiva.id == id).first()
     )
-
-
-# TODO tener en cuenta que se puede traer la informacion de la funcion sustantiva de la siguiente manera
 
 
 def get_by_id(*, db_session, id: int) -> Optional[FuncionSustantiva]:
@@ -26,11 +25,14 @@ def get_by_id(*, db_session, id: int) -> Optional[FuncionSustantiva]:
         db_session.query(
             FuncionSustantiva.id,
             FuncionSustantiva.nombre,
-            FuncionSustantiva.activo,
-            TipoFuncionSustantiva.nombre.label("tipo"),
+            FuncionSustantiva.descripcion,
+            FuncionSustantiva.cantidad_horas,
+            Dependencia.nombre.label("dependencia"),
+            Actividad.nombre.label("actividad"),
         )
         .filter(FuncionSustantiva.id == id)
-        .join(TipoFuncionSustantiva, FuncionSustantiva.tipo == TipoFuncionSustantiva.id)
+        .join(Dependencia, FuncionSustantiva.dependencia == Dependencia.id)
+        .join(Actividad, FuncionSustantiva.actividad == Actividad.id)
         .first()
     )
 
@@ -45,13 +47,6 @@ def get_by_name(*, db_session, nombre: str) -> Optional[FuncionSustantiva]:
     )
 
 
-def get_all_raw_data(
-    *, db_session, skip: int = 0, limit: int = 100
-) -> List[Optional[FuncionSustantiva]]:
-    """Obtine todas las funciones sustantivas"""
-    return db_session.query(FuncionSustantiva).offset(skip).limit(limit).all()
-
-
 def get_all(
     *, db_session, skip: int = 0, limit: int = 100
 ) -> List[Optional[FuncionSustantiva]]:
@@ -60,10 +55,13 @@ def get_all(
         db_session.query(
             FuncionSustantiva.id,
             FuncionSustantiva.nombre,
-            FuncionSustantiva.activo,
-            TipoFuncionSustantiva.nombre.label("tipo"),
+            FuncionSustantiva.descripcion,
+            FuncionSustantiva.cantidad_horas,
+            Dependencia.nombre.label("dependencia"),
+            Actividad.nombre.label("actividad"),
         )
-        .join(TipoFuncionSustantiva, FuncionSustantiva.tipo == TipoFuncionSustantiva.id)
+        .join(Dependencia, FuncionSustantiva.dependencia == Dependencia.id)
+        .join(Actividad, FuncionSustantiva.actividad == Actividad.id)
         .offset(skip)
         .limit(limit)
         .all()
@@ -75,13 +73,21 @@ def create(
 ) -> FuncionSustantiva:
     """Crea una nueva funcion sustantiva"""
 
-    tipo = tipo_funcion_sustantiva_service.get_by_id(
+    dependencia = dependencia_service.get_by_id(
         db_session=db_session,
-        id=funcion_sustantiva_in.tipo,
+        id=funcion_sustantiva_in.dependencia,
     )
 
+    actividad = actividad_service.get_by_id(
+        db_session=db_session, id=funcion_sustantiva_in.actividad
+    )
+
+    nombre = funcion_sustantiva_in.nombre.upper()
     funcion_sustantiva = FuncionSustantiva(
-        **funcion_sustantiva_in.dict(exclude={"tipo"}), tipo=tipo.id
+        **funcion_sustantiva_in.dict(exclude={"dependencia", "actividad", "nombre"}),
+        nombre=nombre,
+        dependencia=dependencia.id,
+        actividad=actividad.id
     )
 
     db_session.add(funcion_sustantiva)
@@ -97,18 +103,31 @@ def update(
     funcion_sustantiva_in: FuncionSustantivaUpdate
 ) -> FuncionSustantiva:
     """Actualiza una funcion sustantiva ya creada"""
+    print(funcion_sustantiva)
     funcion_sustantiva_data = funcion_sustantiva.__dict__
-    update_data = funcion_sustantiva_in.dict(skip_defaults=True, exclude={"tipo"})
+
+    dependencia = dependencia_service.get_by_id(
+        db_session=db_session,
+        id=funcion_sustantiva_in.dependencia,
+    )
+
+    actividad = actividad_service.get_by_id(
+        db_session=db_session, id=funcion_sustantiva_in.actividad
+    )
+
+    nombre = funcion_sustantiva_in.nombre.upper()
+
+    update_data = {
+        "cantidad_horas": funcion_sustantiva_in.cantidad_horas,
+        "descripcion": funcion_sustantiva_in.descripcion,
+        "dependencia": dependencia.id,
+        "actividad": actividad.id,
+        "nombre": nombre,
+    }
 
     for field in funcion_sustantiva_data:
         if field in update_data:
             setattr(funcion_sustantiva, field, update_data[field])
-
-    tipo = tipo_funcion_sustantiva_service.get_by_id(
-        db_session=db_session,
-        id=funcion_sustantiva_in.tipo,
-    )
-    funcion_sustantiva.tipo = tipo.id
 
     db_session.commit()
     db_session.refresh(funcion_sustantiva)

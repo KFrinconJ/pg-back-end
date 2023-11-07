@@ -1,4 +1,7 @@
 from starlette.config import Config
+from pydantic import AnyHttpUrl, BaseModel, validator
+from typing import List, Union
+
 
 config = Config(".env")
 
@@ -15,7 +18,42 @@ DATABASE_NAME = config("DATABASE_NAME")
 # URI para la conexion con labase de datos
 SQLALCHEMY_DATABASE_URI = f"postgresql+psycopg2://{DATABASE_USERNAME}:{DATABASE_PASSWORD}@{DATABASE_HOSTNAME}:{DATABASE_PORT}/{DATABASE_NAME}"
 
-# JWT
-JWT_SECRET = config("JWT_SECRET", default=None)
-JWT_ALG = config("JWT_ALG", default="HS256")
-JWT_EXP = config("JWT_EXP", cast=int, default=86400)
+
+# AUTH0
+DOMAIN = config("DOMAIN")
+API_AUDIENCE = config("API_AUDIENCE")
+ISSUER = config("ISSUER")
+ALGORITHMS = config("ALGORITHMS")
+CLIENT_ORIGIN_URL = config("CLIENT_ORIGIN_URL")
+PORT = config("PORT")
+
+
+# DEPLOY 
+RELOAD = config("RELOAD")
+
+
+# Settings
+class Settings(BaseModel):
+    API_V1_STR: str = "/api/v1"
+    BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = [
+        "http://localhost",
+        "http://localhost:4200",
+        "http://localhost:3000",
+        "http://localhost:8080",
+        "http://local.dockertoolbox.tiangolo.com",
+    ]
+
+    @validator("BACKEND_CORS_ORIGINS", pre=True)
+    def assemble_cors_origins(cls, v: Union[str, List[str]]) -> Union[List[str], str]:
+        if isinstance(v, str) and not v.startswith("["):
+            return [i.strip() for i in v.split(",")]
+        elif isinstance(v, (list, str)):
+            return v
+        raise ValueError(v)
+
+    PROJECT_NAME: str = (
+        "Sistema para el registro y control de las funciones sustantivas"
+    )
+
+
+settings = Settings()

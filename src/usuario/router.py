@@ -1,18 +1,14 @@
 from fastapi import APIRouter, HTTPException, status
 from src.database.core import DbSession
 from .schemas import (
-    UsuarioCreate,
     UsuarioRead,
     UsuarioUpdate,
 )
 from .service import (
-    create,
     get_all,
     get_by_cedula,
     get_by_email,
     update,
-    delete_by_cedula,
-    delete_by_correo,
 )
 
 
@@ -33,99 +29,32 @@ def read_usuarios(db_session: DbSession, skip: int = 0, limit: int = 100):
     return usuarios
 
 
-@router.get("/{cedula}", response_model=UsuarioRead)
-def get_usuario_by_cedula(db_session: DbSession, cedula: int):
-    usuario = get_by_cedula(db_session=db_session, cedula=cedula)
+@router.get("/{email}", response_model=UsuarioRead)
+def get_usuario_by_correo(db_session: DbSession, email: str):
+    usuario = get_by_email(db_session=db_session, email=email)
     if not usuario:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=[
-                {"msg": f"No existe {error_object_singular} con la cédula {cedula}"}
-            ],
+            detail=[{"msg": f"No existe {error_object_singular} con el email {email}"}],
         )
     return UsuarioRead(**usuario.__dict__)
 
 
-@router.get("/correo/{correo}", response_model=UsuarioRead)
-def get_usuario_by_correo(db_session: DbSession, correo: str):
-    usuario = get_by_email(db_session=db_session, correo=correo)
-    if not usuario:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=[
-                {"msg": f"No existe {error_object_singular} con el correo {correo}"}
-            ],
-        )
-    return UsuarioRead(**usuario.__dict__)
-
-
-@router.post("", response_model=UsuarioRead)
-def create_usuario(usuario_in: UsuarioCreate, db_session: DbSession):
-    usuario_cedula = get_by_cedula(db_session=db_session, cedula=usuario_in.cedula)
-    usuario_email = get_by_email(db_session=db_session, correo=usuario_in.correo)
-
-    if usuario_cedula:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail=[
-                {
-                    "msg": f"Ya existe {error_object_singular} con la cédula {usuario_in.cedula}"
-                }
-            ],
-        )
-    if usuario_email:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail=[
-                {
-                    "msg": f"Ya existe {error_object_singular} con el correo {usuario_in.correo}"
-                }
-            ],
-        )
-    programa_academico = create(db_session=db_session, usuario_in=usuario_in)
-    return UsuarioRead(**programa_academico.__dict__)
-
-
-@router.put("/{cedula}")
-def update_usaurio_by_cedula(
-    db_session: DbSession, cedula: int, usuario_in: UsuarioUpdate
-):
-    usuario_cedula = get_by_cedula(db_session=db_session, cedula=usuario_in.cedula)
-
-    if not usuario_cedula:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=[
-                {"msg": f"No existe {error_object_singular} con la cédula {cedula}"}
-            ],
-        )
-
-    usuario_update = update(
-        db_session=db_session,
-        usuario=usuario_cedula,
-        usuario_in=usuario_in,
-    )
-
-    return UsuarioRead(**usuario_update.__dict__)
-
-
-@router.put("/correo/{correo}")
+@router.put("/{email}")
 def update_usaurio_by_correo(
-    db_session: DbSession, correo: int, usuario_in: UsuarioUpdate
+    db_session: DbSession, email: str, usuario_in: UsuarioUpdate
 ):
-    usuario_correo = get_usuario_by_correo(
-        db_session=db_session, correo=usuario_in.correo
-    )
+    usuario_correo = get_usuario_by_correo(db_session=db_session, email=email)
 
     if not usuario_correo:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=[{"msg": f"No existe {error_object_singular} con el {correo}"}],
+            detail=[{"msg": f"No existe {error_object_singular} con el email {email}"}],
         )
 
     usuario_update = update(
         db_session=db_session,
-        usuario=usuario_correo,
+        email=usuario_correo.email,
         usuario_in=usuario_in,
     )
 
@@ -142,11 +71,6 @@ def delete_usuario_by_correo(db_session: DbSession, correo: str):
                 {"msg": f"No existe {error_object_singular} con el correo {correo}"}
             ],
         )
-    delete_by_correo(db_session=db_session, correo=correo)
-    return HTTPException(
-        status_code=status.HTTP_204_NO_CONTENT,
-        detail=[{"msg": f"Se elimino el usuario con el {correo}"}],
-    )
 
 
 @router.delete("/{cedula}")
@@ -159,8 +83,3 @@ def delete_usuario_by_correo(db_session: DbSession, cedula: int):
                 {"msg": f"No existe {error_object_singular} con la cedula {cedula}"}
             ],
         )
-    delete_by_cedula(db_session=db_session, cedula=cedula)
-    return HTTPException(
-        status_code=status.HTTP_204_NO_CONTENT,
-        detail=[{"msg": f"Se elimino el usuario con la {cedula}"}],
-    )

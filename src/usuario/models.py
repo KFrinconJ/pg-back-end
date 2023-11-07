@@ -6,15 +6,16 @@ from src.database.core import Base
 class Usuario(Base):
     __tablename__ = "usuario"
 
-    cedula = Column(Integer, primary_key=True, nullable=False, unique=True, index=True)
-    correo = Column(String, nullable=False, unique=True, index=True)
+    id = Column(String, nullable=False, unique=True)
+    email = Column(String, primary_key=True, nullable=False, unique=True)
     password = Column(String, nullable=False)
-    nombre = Column(String, nullable=False)
-    apellido = Column(String, nullable=False)
-    perfil = Column(String, nullable=True)
-    activo = Column(Boolean, nullable=False, default=True)
-    rol = Column(String, nullable=False, default="DEFAULT")
-    horas_laborales = Column(Integer, nullable=False, default=40)
+    email_verified = Column(Boolean, nullable=True, default=False)
+    nombre = Column(String, nullable=True)
+    apellido = Column(String, nullable=True)
+    cedula = Column(Integer, nullable=True, unique=True)
+    activo = Column(Boolean, nullable=True)
+    programa = Column(String, nullable=True)
+    horas_laborales = Column(Integer, nullable=True)
 
     # Definir la relación uno a uno con Dependencia
     dependencia = relationship("Dependencia", uselist=False, back_populates="usuario")

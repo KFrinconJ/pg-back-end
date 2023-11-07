@@ -1,13 +1,17 @@
 from fastapi import FastAPI
-
-from .database.core import engine
 from starlette.requests import Request
-
+from starlette.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import sessionmaker, scoped_session
+from .database.core import engine
+from .config import settings
 from .api import api_router
+import uvicorn
+from src import config
 
 # ASGI para el framework
-app = FastAPI()
+app = FastAPI(
+    title=settings.PROJECT_NAME, openapi_url=f"{settings.API_V1_STR}/openapi.json"
+)
 
 
 @app.middleware("http")
@@ -42,5 +46,25 @@ def test_db_connection():
         return {"message": "Error al conectar a la base de datos", "error": str(e)}
 
 
+if settings.BACKEND_CORS_ORIGINS:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=[str(origin) for origin in settings.BACKEND_CORS_ORIGINS],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
+
 # Añadimos todas la rutas
-app.include_router(api_router)
+app.include_router(api_router, prefix=settings.API_V1_STR)
+
+
+if __name__ == "__main__":
+    uvicorn.run(
+        "main:app",
+        host="0.0.0.0",
+        port=config.DATABASE_PORT,
+        reload=config.RELOAD,
+        server_header=False,
+    )

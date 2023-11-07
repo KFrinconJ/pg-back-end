@@ -12,5 +12,5 @@ class ProgramaAcademico(Base):
 
     # Relacion entre tablas
     # Nombre del campo
-    director = Column(Integer, ForeignKey("usuario.cedula"), nullable=False)
+    director = Column(String, ForeignKey("usuario.email"), nullable=False)
     director_ref = relationship("Usuario", backref="programa_academico")

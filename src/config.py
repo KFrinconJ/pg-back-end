@@ -37,7 +37,7 @@ class Settings(BaseModel):
     API_V1_STR: str = "/api/v1"
     BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = [
         "http://localhost",
-        "http://localhost:4200",
+        "http://localhost:5173",
         "http://localhost:3000",
         "http://localhost:8080",
         "http://local.dockertoolbox.tiangolo.com",

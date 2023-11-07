@@ -1,5 +1,4 @@
 from fastapi import APIRouter, HTTPException, status
-from fastapi.encoders import jsonable_encoder
 from src.database.core import DbSession
 from .schemas import (
     ActividadCreate,

@@ -14,8 +14,8 @@ def get_all(
     return db_session.query(CursoAcademico).offset(skip).limit(limit).all()
 
 
-def create(db_session: Session, curso: CursoCreate) -> CursoAcademico:
-    curso_db = CursoAcademico(**curso.dict())
+def create(db_session: Session, curso_in: CursoCreate) -> CursoAcademico:
+    curso_db = CursoAcademico(**curso_in.dict())
     db_session.add(curso_db)
     db_session.commit()
     db_session.refresh(curso_db)

@@ -50,7 +50,7 @@ def create_usuario(curso_in: CursoCreate, db_session: DbSession):
 
 @router.put("/{id}", response_model=CursoUpdate)
 def update_curso(db_session: DbSession, id: int, curso_in: CursoUpdate):
-    curso_update = update(db_session=db_session, curso_id=id, curso_in=curso_in)
+    curso_update = update(db_session=db_session, id=id, curso_in=curso_in)
     return CursoRead(**curso_update.__dict__)
 
 

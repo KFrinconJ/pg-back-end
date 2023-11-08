@@ -4,7 +4,7 @@ from typing import Optional
 
 class DependenciaBase(BaseModel):
     nombre: str
-    encargado: int
+    encargado: str
 
 
 class DependenciaCreate(DependenciaBase):
@@ -13,7 +13,7 @@ class DependenciaCreate(DependenciaBase):
 
 class DependenciaRead(DependenciaBase):
     id: int
-    encargado: int | str
+    encargado: str
 
 
 class DependenciaUpdate(DependenciaBase):

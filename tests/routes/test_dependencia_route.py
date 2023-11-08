@@ -27,7 +27,7 @@ fake.add_provider(nombre_dependencia_provider)
 
 
 def test_create_dependencia(client: TestClient, db: Session) -> None:
-    encargado = 1098811091
+    encargado = "kevinrincon8@gmail.com"
     nombre = fake.nombre_dependencia()
 
     data = {
@@ -53,7 +53,7 @@ def test_get_dependencia(client: TestClient, db: Session) -> None:
 
 def test_update_dependencia(client: TestClient, db: Session) -> None:
     id = 1
-    encargado = 1098811091
+    encargado = "kevinrincon8@gmail.com"
     nombre = fake.nombre_dependencia()
 
     data = {

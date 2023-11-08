@@ -10,5 +10,5 @@ class Dependencia(Base):
     nombre = Column(String, unique=True, nullable=False)
 
     # Definir la relación uno a uno con Usuario
-    encargado = Column(Integer, ForeignKey("usuario.cedula"), nullable=False)
+    encargado = Column(Integer, ForeignKey("usuario.email"), nullable=False)
     usuario = relationship("Usuario", back_populates="dependencia")

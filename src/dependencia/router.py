@@ -7,7 +7,7 @@ from .schemas import (
 )
 from .service import create, get_all, get_by_id, get_by_name, delete, update
 
-from src.usuario.service import get_by_cedula
+from src.usuario.service import get_by_email
 
 
 router = APIRouter()
@@ -42,14 +42,14 @@ def get_dependencia(db_session: DbSession, id: int):
 def create_dependencia(dependencia_in: DependenciaCreate, db_session: DbSession):
     dependencia_name = get_by_name(db_session=db_session, nombre=dependencia_in.nombre)
 
-    encargado = get_by_cedula(db_session=db_session, cedula=dependencia_in.encargado)
+    encargado = get_by_email(db_session=db_session, email=dependencia_in.encargado)
 
     if not encargado:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=[
                 {
-                    "msg": f"No se encuentra un usuario[encargado] con la cedula {dependencia_in.encargado}"
+                    "msg": f"No se encuentra un usuario[encargado] con la email {dependencia_in.encargado}"
                 }
             ],
         )
@@ -75,14 +75,14 @@ def update_dependencia(
     dependencia = get_by_id(db_session=db_session, id=id)
     dependencia_name = get_by_name(db_session=db_session, nombre=dependencia_in.nombre)
 
-    encargado = get_by_cedula(db_session=db_session, cedula=dependencia_in.encargado)
+    encargado = get_by_email(db_session=db_session, email=dependencia_in.encargado)
 
     if not encargado:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=[
                 {
-                    "msg": f"No se encuentra un usuario[encargado] con la cedula {dependencia_in.encargado}"
+                    "msg": f"No se encuentra un usuario[encargado] con la email {dependencia_in.encargado}"
                 }
             ],
         )

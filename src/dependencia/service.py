@@ -1,8 +1,7 @@
 from typing import Optional, List
 from .models import Dependencia
 from .schemas import DependenciaCreate, DependenciaUpdate
-from src.usuario.service import get_by_cedula
-from src.usuario.models import Usuario
+from src.usuario.service import get_by_email
 
 
 def get_by_id(*, db_session, id: int) -> Optional[Dependencia]:
@@ -25,10 +24,10 @@ def get_all(
 def create(*, db_session, dependencia_in: DependenciaCreate) -> Dependencia:
     """Crea una nueva dependencia"""
 
-    encargado = get_by_cedula(db_session=db_session, cedula=dependencia_in.encargado)
+    encargado = get_by_email(db_session=db_session, email=dependencia_in.encargado)
 
     dependencia = Dependencia(
-        nombre=dependencia_in.nombre.upper(), encargado=encargado.cedula
+        nombre=dependencia_in.nombre.upper(), encargado=encargado.email
     )
     db_session.add(dependencia)
     db_session.commit()
@@ -39,11 +38,11 @@ def create(*, db_session, dependencia_in: DependenciaCreate) -> Dependencia:
 def update(
     *, db_session, dependencia: Dependencia, dependencia_in: DependenciaUpdate
 ) -> Dependencia:
-    encargado = get_by_cedula(db_session=db_session, cedula=dependencia_in.encargado)
+    encargado = get_by_email(db_session=db_session, email=dependencia_in.encargado)
     dependencia_data = dependencia.__dict__
     update_data = {
         "nombre": dependencia_in.nombre.upper(),
-        "encargado": encargado.cedula,
+        "encargado": encargado.email,
     }
 
     for field in dependencia_data:

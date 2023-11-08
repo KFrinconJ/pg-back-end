@@ -67,5 +67,5 @@ def delete_actividad(db_session: DbSession, id: int):
     delete(db_session=db_session, id=id)
     return HTTPException(
         status_code=status.HTTP_204_NO_CONTENT,
-        detail=[{"msg": f"Se elimino el usuario con el {id}"}],
+        detail=[{"msg": f"Se elimino {error_object_singular} con el {id}"}],
     )

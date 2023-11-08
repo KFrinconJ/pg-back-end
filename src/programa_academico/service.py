@@ -6,7 +6,7 @@ from .schemas import (
     ProgramaAcademicoUpdate,
 )
 
-from src.usuario.service import get_by_cedula
+from src.usuario.service import get_by_email
 from src.usuario.models import Usuario
 
 
@@ -49,15 +49,13 @@ def create(
 ) -> ProgramaAcademico:
     """Crea un nuevo programa academico"""
 
-    director = get_by_cedula(
-        db_session=db_session, cedula=programa_academico_in.director
-    )
+    director = get_by_email(db_session=db_session, email=programa_academico_in.director)
 
     nombre = programa_academico_in.nombre.upper()
 
     programa_academico = ProgramaAcademico(
         **programa_academico_in.dict(exclude={"director", "nombre"}),
-        director=director.cedula,
+        director=director.email,
         nombre=nombre
     )
     db_session.add(programa_academico)
@@ -72,14 +70,12 @@ def update_by_codigo_snies(
     programa_academico: ProgramaAcademico,
     programa_academico_in: ProgramaAcademicoUpdate
 ) -> ProgramaAcademico:
-    director = get_by_cedula(
-        db_session=db_session, cedula=programa_academico_in.director
-    )
+    director = get_by_email(db_session=db_session, email=programa_academico_in.director)
     programa_academico_data = programa_academico.__dict__
     update_data = {
         "codigo_snies": programa_academico_in.codigo_snies,
         "nombre": programa_academico_in.nombre.upper(),
-        "director": director.cedula,
+        "director": director.email,
     }
 
     for field in programa_academico_data:

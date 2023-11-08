@@ -38,7 +38,7 @@ fake.add_provider(nombre_programa_academico_provider)
 def test_create_programa_academico(client: TestClient, db: Session) -> None:
     codigo_snies = fake.pyint(min_value=1, max_value=10000)
     nombre = fake.nombre_programa_academico()
-    director = 1098811091
+    director = "kevinrincon8@gmail.com"
 
     data = {
         "codigo_snies": codigo_snies,
@@ -56,15 +56,15 @@ def test_get_all_programas_academicos(client: TestClient, db: Session) -> None:
 
 
 def test_get_programa_academico(client: TestClient, db: Session) -> None:
-    codigo_snies = 6894
+    codigo_snies = 5984
     r = client.get(f"{uri_endopoint}/snies/{codigo_snies}")
     assert 200 <= r.status_code < 300
 
 
 def test_update_programa_academico(client: TestClient, db: Session) -> None:
-    codigo_snies = 6894
+    codigo_snies = 5984
     nombre = fake.nombre_programa_academico()
-    director = 1098811091
+    director = "kevinrincon8@gmail.com"
 
     data = {
         "codigo_snies": codigo_snies,

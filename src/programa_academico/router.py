@@ -15,7 +15,7 @@ from .service import (
     delete_by_codigo_snies,
 )
 
-from src.usuario.service import get_by_cedula
+from src.usuario.service import get_by_email
 
 
 # Faltan crear validaciones
@@ -93,15 +93,13 @@ def create_programa_academico(
         db_session=db_session, snies=programa_academico_in.codigo_snies
     )
 
-    director = get_by_cedula(
-        db_session=db_session, cedula=programa_academico_in.director
-    )
+    director = get_by_email(db_session=db_session, email=programa_academico_in.director)
     if not director:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=[
                 {
-                    "msg": f"No se encuentra un usuario[director] con la cedula {programa_academico_in.director}"
+                    "msg": f"No se encuentra un usuario[director] con la email {programa_academico_in.director}"
                 }
             ],
         )
@@ -140,16 +138,14 @@ def update_programa_academico_by_codigo_snies(
         db_session=db_session, nombre=programa_academico_in.nombre
     )
 
-    director = get_by_cedula(
-        db_session=db_session, cedula=programa_academico_in.director
-    )
+    director = get_by_email(db_session=db_session, email=programa_academico_in.director)
 
     if not director:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=[
                 {
-                    "msg": f"No se encuentra un usuario[director] con la cedula {programa_academico_in.director}"
+                    "msg": f"No se encuentra un usuario[director] con el correo {programa_academico_in.director}"
                 }
             ],
         )

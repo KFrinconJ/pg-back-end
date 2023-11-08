@@ -29,11 +29,11 @@ funciones_sustantiva_provider = DynamicProvider(
 fake.add_provider(funciones_sustantiva_provider)
 
 
-def test_create_actividad(client: TestClient, db: Session) -> None:
+def test_create_funcion_sustantiva(client: TestClient, db: Session) -> None:
     nombre = fake.funciones_sustantivas()
     cantidad_horas = fake.pyint(min_value=1, max_value=4)
     descripcion = fake.paragraph(nb_sentences=5)
-    actividad = 3
+    actividad = 1
     dependencia = 1
     data = {
         "nombre": nombre,
@@ -46,19 +46,19 @@ def test_create_actividad(client: TestClient, db: Session) -> None:
     assert 200 <= r.status_code < 300
 
 
-def test_get_all_actividad(client: TestClient, db: Session) -> None:
+def test_get_all_funcion_sustantiva(client: TestClient, db: Session) -> None:
     r = client.get(uri_endopoint)
     assert 200 <= r.status_code < 300
 
 
-def test_get_actividad(client: TestClient, db: Session) -> None:
-    id = 16
+def test_get_funcion_sustantiva(client: TestClient, db: Session) -> None:
+    id = 1
     r = client.get(f"{uri_endopoint}/{id}")
     assert 200 <= r.status_code < 300
 
 
-def test_update_actividad(client: TestClient, db: Session) -> None:
-    id = 16
+def test_update_funcion_sustantiva(client: TestClient, db: Session) -> None:
+    id = 1
     nombre = fake.funciones_sustantivas()
     cantidad_horas = fake.pyint(min_value=1, max_value=4)
     descripcion = fake.paragraph(nb_sentences=5)
@@ -76,7 +76,7 @@ def test_update_actividad(client: TestClient, db: Session) -> None:
     assert 200 <= r.status_code < 300
 
 
-def test_delete_actividad(client: TestClient, db: Session) -> None:
+def test_delete_funcion_sustantiva(client: TestClient, db: Session) -> None:
     id = 17
     r = client.delete(f"{uri_endopoint}/{id}")
     assert 200 <= r.status_code < 300 or 204

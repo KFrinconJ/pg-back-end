@@ -8,7 +8,7 @@ from src.usuario.router import router as usuario_router
 from src.actividad.router import router as actividad_router
 from src.dependencia.router import router as dependencia_router
 
-from src.auth.dependencies import PermissionsValidator, validate_token
+from src.auth.dependencies import PermissionsValidator
 from fastapi import Depends
 
 
@@ -30,11 +30,6 @@ api_router.include_router(
     prefix="/funcion-sustantiva",
     tags=["Funciones Sustantivas"],
 )
-
-# Proteger autenticacion
-# @app.get("/api/messages/protected", dependencies=[Depends(validate_token)])
-# def protected():
-#     return {"text": "This is a protected message."}
 
 
 api_router.include_router(

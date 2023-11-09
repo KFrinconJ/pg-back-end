@@ -47,6 +47,7 @@ class Settings(BaseModel):
         "http://localhost:3000",
         "http://localhost:8080",
         "http://local.dockertoolbox.tiangolo.com",
+        "https://spa-pg.vercel.app",
     ]
 
     @validator("BACKEND_CORS_ORIGINS", pre=True)

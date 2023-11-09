@@ -9,11 +9,12 @@ from .schemas import (
     UsuarioUpdate,
 )
 from .service import (
-    get_all,
-    get_by_cedula,
     get_by_email,
     update,
 )
+
+from src.auth.dependencies import PermissionsValidator
+from fastapi import Depends
 
 
 router = APIRouter()
@@ -22,19 +23,12 @@ error_object_plural = "usuarios"
 error_object_singular = "un usuario"
 
 
-@router.get("")
-def read_usuarios(db_session: DbSession, skip: int = 0, limit: int = 100):
-    usuarios = get_all(db_session=db_session, skip=skip, limit=limit)
-    if not usuarios:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=[{"msg": f"No hay {error_object_plural} registrados"}],
-        )
-    return usuarios
-
-
-@router.get("/{email}", response_model=UsuarioRead)
-def get_usuario_by_correo(db_session: DbSession, email: str):
+@router.get(
+    "/{email}",
+    dependencies=[Depends(PermissionsValidator(["read:usuario"]))],
+    response_model=UsuarioRead,
+)
+def get_usuario_by_correo_db(db_session: DbSession, email: str):
     usuario = get_by_email(db_session=db_session, email=email)
     if not usuario:
         raise HTTPException(
@@ -44,11 +38,14 @@ def get_usuario_by_correo(db_session: DbSession, email: str):
     return UsuarioRead(**usuario.__dict__)
 
 
-@router.put("/{email}")
+@router.put(
+    "/{email}",
+    dependencies=[Depends(PermissionsValidator(["update:usuario"]))],
+)
 def update_usaurio_by_correo(
     db_session: DbSession, email: str, usuario_in: UsuarioUpdate
 ):
-    usuario_correo = get_usuario_by_correo(db_session=db_session, email=email)
+    usuario_correo = get_usuario_by_correo_db(db_session=db_session, email=email)
 
     if not usuario_correo:
         raise HTTPException(
@@ -77,19 +74,10 @@ def delete_usuario_by_correo(db_session: DbSession, correo: str):
         )
 
 
-@router.delete("/{cedula}")
-def delete_usuario_by_correo(db_session: DbSession, cedula: int):
-    usuario_correo = get_by_cedula(db_session=db_session, cedula=cedula)
-    if not usuario_correo:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=[
-                {"msg": f"No existe {error_object_singular} con la cedula {cedula}"}
-            ],
-        )
-
-
-@router.get("/auth0/users")
+@router.get(
+    "/auth0/users",
+    dependencies=[Depends(PermissionsValidator(["read:usuarios"]))],
+)
 def get_users():
     # Get an Access Token from Auth0
     base_url = f"https://{config.DOMAIN}"
@@ -109,7 +97,6 @@ def get_users():
         "Content-Type": "application/json",
     }
 
-    # Get all Applications using the token
     try:
         res = requests.get(f"{base_url}/api/v2/users", headers=headers)
         return res.json()
@@ -123,7 +110,10 @@ def get_users():
         return {"error": f"Generic Exception: {e}"}
 
 
-@router.get("/auth0/users/{id}")
+@router.get(
+    "/auth0/users/{id}",
+    dependencies=[Depends(PermissionsValidator(["read:usuario"]))],
+)
 def get_access_token(id: str):
     # Get an Access Token from Auth0
     base_url = f"https://{config.DOMAIN}"

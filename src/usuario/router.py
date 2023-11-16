@@ -172,7 +172,48 @@ def update_user(id: str, user_update: dict):
 
     # Get all Applications using the token
     try:
-        res = requests.patch(f"{base_url}/api/v2/users/{id}", headers=headers,json=user_update)
+        res = requests.patch(
+            f"{base_url}/api/v2/users/{id}", headers=headers, json=user_update
+        )
+        return res.json()
+    except HTTPError as e:
+        return {"error": f"HTTPError: {str(e.code)} {str(e.reason)}"}
+    except URLRequired as e:
+        return {"error": f"URLRequired: {str(e.reason)}"}
+    except RequestException as e:
+        return {"error": f"RequestException: {e}"}
+    except Exception as e:
+        return {"error": f"Generic Exception: {e}"}
+
+
+@router.post(
+    "/auth0/users/{id}",
+    dependencies=[Depends(PermissionsValidator(["update:usuario"]))],
+)
+def asign_rol(id: str, user_rol: dict):
+    # Get an Access Token from Auth0
+    base_url = f"https://{config.DOMAIN}"
+    payload = {
+        "grant_type": "client_credentials",
+        "client_id": config.CLIENT_ID,
+        "client_secret": config.CLIENT_SECRET,
+        "audience": config.MANAGEMENT_AUDIENCE,
+    }
+    response = requests.post(f"{base_url}/oauth/token", data=payload)
+    oauth = response.json()
+
+    access_token = oauth.get("access_token")
+
+    headers = {
+        "Authorization": f"Bearer {access_token}",
+        "Content-Type": "application/json",
+    }
+
+    # Get all Applications using the token
+    try:
+        res = requests.post(
+            f"{base_url}/api/v2/users/{id}/roles", headers=headers, json=user_rol
+        )
         return res.json()
     except HTTPError as e:
         return {"error": f"HTTPError: {str(e.code)} {str(e.reason)}"}

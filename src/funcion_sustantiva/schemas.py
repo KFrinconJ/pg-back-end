@@ -6,6 +6,7 @@ class FuncionSustantivaBase(BaseModel):
     cantidad_horas: int
     descripcion: str
     actividad: int
+    dependencia: int
 
 
 class FuncionSustantivaCreate(FuncionSustantivaBase):

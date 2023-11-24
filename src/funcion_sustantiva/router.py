@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, status
 from typing import Optional
 from src.database.core import DbSession
-from .shcemas import (
+from .schemas import (
     FuncionSustantivaCreate,
     FuncionSustantivaRead,
     FuncionSustantivaUpdate,
@@ -15,11 +15,9 @@ error_object_singular = "Una Funcion Sustantiva"
 from .service import (
     create,
     get_all,
-    get_by_name,
     update,
     delete,
     get_by_id,
-    get_by_id_numeric,
 )
 from src.dependencia.service import get_by_id as get_by_id_dependencia
 from src.actividad.service import get_by_id as get_by_id_actividad
@@ -48,20 +46,9 @@ def get_funcion_sustantiva_by_id(db_session: DbSession, id: int):
             status_code=status.HTTP_404_NOT_FOUND,
             detail=[{"msg": f"No existe {error_object_singular} con el id {id}"}],
         )
-    return FuncionSustantivaRead(**funcion_sustantiva)
-
-
-@router.get("/nombre/{nombre}", response_model=FuncionSustantivaRead)
-def get_funcion_sustantiva_by_name(db_session: DbSession, nombre: str):
-    funcion_sustantiva = get_by_name(db_session=db_session, nombre=nombre)
-    if not funcion_sustantiva:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=[
-                {"msg": f"No existe {error_object_singular} con el nombre {nombre}"}
-            ],
-        )
     return FuncionSustantivaRead(**funcion_sustantiva.__dict__)
+
+
 
 
 @router.post("", response_model=Optional[FuncionSustantivaRead])
@@ -121,7 +108,7 @@ def create_funcion_sustantiva(
 def update_funcion_sustantiva(
     db_session: DbSession, id: int, funcion_sustantiva_in: FuncionSustantivaUpdate
 ):
-    funcion_sustantiva = get_by_id_numeric(db_session=db_session, id=id)
+    funcion_sustantiva = get_by_id(db_session=db_session, id=id)
     if not funcion_sustantiva:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

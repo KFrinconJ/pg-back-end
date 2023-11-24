@@ -2,70 +2,22 @@ from typing import Optional, List
 
 
 from src.dependencia import service as dependencia_service
-from src.dependencia.models import Dependencia
 from src.actividad import service as actividad_service
-from src.actividad.models import Actividad
+from sqlalchemy.orm import Session
+
 
 
 from .models import FuncionSustantiva
 
-from .shcemas import FuncionSustantivaCreate, FuncionSustantivaUpdate
+from .schemas import FuncionSustantivaCreate, FuncionSustantivaUpdate
 
 
-def get_by_id_numeric(*, db_session, id: int) -> Optional[FuncionSustantiva]:
-    """Obtiene la funcion sustantiva por id."""
-    return (
-        db_session.query(FuncionSustantiva).filter(FuncionSustantiva.id == id).first()
-    )
+def get_by_id(db_session: Session, id: int) -> Optional[FuncionSustantiva]:
+    return db_session.query(FuncionSustantiva).filter(FuncionSustantiva.id == id).first()
 
 
-def get_by_id(*, db_session, id: int) -> Optional[FuncionSustantiva]:
-    """Obtiene la funcion sustantiva por id."""
-    return (
-        db_session.query(
-            FuncionSustantiva.id,
-            FuncionSustantiva.nombre,
-            FuncionSustantiva.descripcion,
-            FuncionSustantiva.cantidad_horas,
-            Dependencia.nombre.label("dependencia"),
-            Actividad.nombre.label("actividad"),
-        )
-        .filter(FuncionSustantiva.id == id)
-        .join(Dependencia, FuncionSustantiva.dependencia == Dependencia.id)
-        .join(Actividad, FuncionSustantiva.actividad == Actividad.id)
-        .first()
-    )
-
-
-# query(FS, TipoFS.nombre_tipo_fs).join(TipoFS, FS.id_tipo_fs == TipoFS.id_tipo_fs).all()
-def get_by_name(*, db_session, nombre: str) -> Optional[FuncionSustantiva]:
-    """Obtiene la funcion sustantiva por nombre"""
-    return (
-        db_session.query(FuncionSustantiva)
-        .filter(FuncionSustantiva.nombre == nombre)
-        .first()
-    )
-
-
-def get_all(
-    *, db_session, skip: int = 0, limit: int = 100
-) -> List[Optional[FuncionSustantiva]]:
-    """Obtine todas las funciones sustantivas"""
-    return (
-        db_session.query(
-            FuncionSustantiva.id,
-            FuncionSustantiva.nombre,
-            FuncionSustantiva.descripcion,
-            FuncionSustantiva.cantidad_horas,
-            Dependencia.nombre.label("dependencia"),
-            Actividad.nombre.label("actividad"),
-        )
-        .join(Dependencia, FuncionSustantiva.dependencia == Dependencia.id)
-        .join(Actividad, FuncionSustantiva.actividad == Actividad.id)
-        .offset(skip)
-        .limit(limit)
-        .all()
-    )
+def get_all(db_session: Session, skip: int = 0, limit: int = 100) -> List[FuncionSustantiva]:
+    return db_session.query(FuncionSustantiva).offset(skip).limit(limit).all()
 
 
 def create(
